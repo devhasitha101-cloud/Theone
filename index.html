@@ -1,0 +1,1736 @@
+```react
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Scale,
+  Compass,
+  Sparkles,
+  BookOpen,
+  RotateCcw,
+  ChevronRight,
+  Globe,
+  Eye,
+  AlertTriangle,
+  CheckCircle2,
+  History,
+  HelpCircle,
+  ShieldCheck,
+  Flame,
+  Rewind,
+  MessageSquare,
+  Triangle,
+  PenTool,
+  X,
+  Sliders,
+  Layers,
+  Award
+} from 'lucide-react';
+
+/**
+ * The Crossroads of Qadar — V2 (තීරණ සහ දේව කැමැත්තේ හන්දිය)
+ * Comprehensive, mobile-first interactive philosophical web game exploring the
+ * classical Islamic theological tension across all 7 major schools of thought.
+ */
+
+// --- ALL 7 ISLAMIC THEOLOGICAL & PHILOSOPHICAL SCHOOLS ---
+const SEVEN_SCHOOLS = [
+  {
+    id: 'mutazila',
+    badgeColor: 'emerald',
+    fwDelta: 16,
+    dwDelta: -10,
+    tensionBonus: -6,
+    si: {
+      name: "1. මු'තසිලා (Mu'tazila)",
+      tag: 'දේව යුක්තිය සහ සැබෑ නිදහස් කැමැත්ත',
+      shortDesc:
+        'මිනිසා තම ක්‍රියාවන්ගේ සැබෑ නිර්මාතෘවරයා වන අතර, දේව යුක්තිය (Al-\'Adl) සුරැකීමට නම් පූර්ණ නිදහස් කැමැත්ත තිබිය යුතුමය.',
+      deepAnalysis:
+        'මු\'තසිලා දෘෂ්ටියට අනුව, ඔබට මෙම අවස්ථාවේදී වෙනත් තීරණයක් ගැනීමේ සැබෑ හැකියාව (Qudra) 100% ක් තිබුණි. දෙවියන් වහන්සේ පරිපූර්ණ යුක්තිගරුක නිසා, මිනිසාට වෙනස් කළ නොහැකි ක්‍රියාවකට දඬුවම් හෝ ත්‍යාග දීම කළ නොහැක. කෙසේ වෙතත්, මෙමඟින් දෙවියන්ගේ පූර්ව නියමය සීමා වන බවට තර්ක මතුවේ.'
+    },
+    en: {
+      name: "1. Mu'tazila",
+      tag: 'Divine Justice & Autonomous Free Will',
+      shortDesc:
+        'Humans are the true authors of their acts; safeguarding Divine Justice (Al-\'Adl) requires genuine power to choose otherwise.',
+      deepAnalysis:
+        'From the Mu\'tazila perspective, you possessed genuine causal power (Qudra) to choose differently. Because God is perfectly Just, divine reward or punishment presupposes autonomous choice—though critics argue this limits absolute divine fore-determination.'
+    }
+  },
+  {
+    id: 'jabriyya',
+    badgeColor: 'sky',
+    fwDelta: -18,
+    dwDelta: 18,
+    tensionBonus: 6,
+    si: {
+      name: '2. ජබ්‍රියා (Jabriyya)',
+      tag: 'පූර්ණ දේව නිර්ණය (Absolute Determinism)',
+      shortDesc:
+        'මිනිසා සුළඟේ පාවෙන පිහාටුවක් මෙනි; විශ්වයේ සැබෑ කර්තෘ දෙවියන් වහන්සේ පමණි.',
+      deepAnalysis:
+        'ජබ්‍රියා දෘෂ්ටියට අනුව, ඔබ තීරණයක් ගත් බව ඔබට දැනුණත්, එම සිතුවිල්ල සහ ක්‍රියාව සම්පූර්ණයෙන්ම දේව කැමැත්තේ ප්‍රතිඵලයකි. දෙවියන්ගේ සර්වබලධාරීත්වය 100% ක් ආරක්ෂා වුවද, "මිනිසා පව් කරන්නේ ඇයි සහ ඔහුට දඬුවම් ලැබෙන්නේ ඇයි?" යන සදාචාරාත්මක ගැටලුව තියුණු වේ.'
+    },
+    en: {
+      name: '2. Jabriyya',
+      tag: 'Absolute Divine Determinism',
+      shortDesc:
+        'Humans are like a feather carried by the wind; God alone is the sole creator and mover of every action.',
+      deepAnalysis:
+        'In Jabriyya determinism, the feeling of choosing is itself created by God. While Divine Omnipotence remains 100% intact, human moral accountability becomes deeply paradoxical.'
+    }
+  },
+  {
+    id: 'ashari',
+    badgeColor: 'amber',
+    fwDelta: 7,
+    dwDelta: 14,
+    tensionBonus: 16,
+    si: {
+      name: "3. අශ්අරි (Ash'ari)",
+      tag: 'දේව නිර්මාණය සහ අත්පත් කරගැනීම (Kasb)',
+      shortDesc:
+        'ක්‍රියාව මවන්නේ දෙවියන් වුවද, මිනිසා එය "අත්පත් කර ගැනීම" (Kasb) නිසා වගකිව යුතුය.',
+      deepAnalysis:
+        'අශ්අරි දේවධර්මයට අනුව, ඔබේ ක්‍රියාව මැව්වේ දෙවියන් වහන්සේය; එහෙත් එම මොහොතේ ඔබ තුළ ඇති වූ කැමැත්ත හරහා ඔබ එය "අත්පත් කරගත්" (Kasb) නිසා ඔබ වගකිව යුතුය. ක්‍රියාව මැවීම සහ වගකීම වෙන් කිරීම නිසා මෙහි දාර්ශනික ආතතිය ඉතා ඉහළය.'
+    },
+    en: {
+      name: "3. Ash'ari",
+      tag: 'Divine Creation & Acquisition (Kasb)',
+      shortDesc:
+        'God creates every human act, yet humans acquire (Kasb) it through inner intention, making them morally accountable.',
+      deepAnalysis:
+        'In Ash\'ari theology, God creates the act itself while you voluntarily acquire (Kasb) it at the moment of choice. Holding absolute creation together with human accountability sharply elevates philosophical tension.'
+    }
+  },
+  {
+    id: 'maturidi',
+    badgeColor: 'teal',
+    fwDelta: 11,
+    dwDelta: 10,
+    tensionBonus: 12,
+    si: {
+      name: '4. මාතුරිදි (Maturidi)',
+      tag: 'බුද්ධිය, සැබෑ තේරීම සහ පූර්ව දැනුම',
+      shortDesc:
+        'දෙවියන්ගේ පූර්ව දැනුම යනු බලහත්කාරයක් නොවේ; මිනිසාට බුද්ධිය සහ සැබෑ තෝරා ගැනීමේ නිදහස ලබා දී ඇත.',
+      deepAnalysis:
+        'මාතුරිදි විග්‍රහයට අනුව, ඔබ තෝරා ගන්නා දේ දෙවියන් කලින්ම දැන සිටියේ ඔබ එය තෝරා ගන්නා නිසා මිස, දෙවියන් ඔබට බල කළ නිසා නොවේ. එහෙත් නොවරදින පූර්ව දැනුමකට වෙනස් දෙයක් කිරීමට තාර්කිකව හැකිද යන ප්‍රශ්නය තවමත් ඉතිරිව පවතී.'
+    },
+    en: {
+      name: '4. Maturidi',
+      tag: 'Reason, Real Choice & Foreknowledge',
+      shortDesc:
+        'Divine foreknowledge is descriptive, not coercive; God endowed humans with intellect and genuine partial choice.',
+      deepAnalysis:
+        'Maturidi scholars emphasize that God foreknew your choice because you would freely make it—not vice versa. Yet philosophers still note the logical tension between infallible foreknowledge and alternative possibilities.'
+    }
+  },
+  {
+    id: 'shia',
+    badgeColor: 'indigo',
+    fwDelta: 10,
+    dwDelta: 9,
+    tensionBonus: 10,
+    si: {
+      name: "5. ෂියා / ඉමාමියා (Shi'a / Imamiyyah)",
+      tag: 'අම්ර් බයින් අල්-අම්රයින් (මැදි මාවත)',
+      shortDesc:
+        '"අන්ත දෙක අතර මැදි මාවත" — පූර්ණ නිර්ණය ද නොවේ, පූර්ණ ස්වාධීනත්වය ද නොවේ; දෙවියන් දුන් ශක්තියෙන් මිනිසා තීරණ ගනී.',
+      deepAnalysis:
+        'ඉමාම් ජ\'ෆර් අස්-සාදික් (අලෛ) තුමාගේ ප්‍රකට "අම්ර් බයින් අල්-අම්රයින්" (නිර්ණය සහ ස්වාධීනත්වය අතර මැදි මාවත) මූලධර්මයට අනුව, ඔබට ක්‍රියා කිරීමේ හැකියාව දෙවියන් සෑම මොහොතකම ලබා දෙන අතර, එය භාවිත කරන දිශාව තෝරා ගන්නේ ඔබයි.'
+    },
+    en: {
+      name: "5. Shi'a / Imamiyyah",
+      tag: 'Amr bayn al-Amrayn (The Middle Path)',
+      shortDesc:
+        '"A position between two extremes"—neither absolute compulsion nor total independence; humans choose using God-sustained power.',
+      deepAnalysis:
+        'Following Imam Ja\'far al-Sadiq\'s principle of Amr bayn al-Amrayn, God continuously sustains your capacity to act while delegating the moral direction of the choice to you—balancing justice with divine sustenance.'
+    }
+  },
+  {
+    id: 'falsafa',
+    badgeColor: 'purple',
+    fwDelta: 9,
+    dwDelta: 11,
+    tensionBonus: 11,
+    si: {
+      name: '6. ඉස්ලාමීය දාර්ශනික මතය (Falsafa / Ibn Rushd)',
+      tag: 'හේතුඵල නියාමය සහ අභ්‍යන්තර කැමැත්ත',
+      shortDesc:
+        'අභ්‍යන්තර කැමැත්ත සහ බාහිර හේතුඵල නියාමයන් (Causality) එකට බැඳී පවතින සංකීර්ණ සමතුලිතතාවකි.',
+      deepAnalysis:
+        'ඉබ්න් රුෂ්ද් (Averroes) පෙන්වා දෙන්නේ මිනිස් කැමැත්ත අහම්බයක් නොව බුද්ධිය සහ බාහිර සාධක (හේතුඵල) සමඟ බැඳී ඇති බවයි. දෙවියන්ගේ දැනුම මිනිස් දැනුම මෙන් කාලයට යටත් නොවන (Timeless) නිසා, මිනිස් තර්කයට එය පරස්පරයක් ලෙස පෙනේ.'
+    },
+    en: {
+      name: '6. Falsafa (Ibn Rushd / Averroes)',
+      tag: 'Causality & Rational Will',
+      shortDesc:
+        'Human will operates within a divinely ordered web of internal rational motives and external natural causes.',
+      deepAnalysis:
+        'Ibn Rushd argues that human choice is neither random nor coerced, but shaped by reason and external causes established by God. Because God\'s knowledge is timeless rather than temporal, human logic perceives a paradox.'
+    }
+  },
+  {
+    id: 'sufi',
+    badgeColor: 'rose',
+    fwDelta: 6,
+    dwDelta: 15,
+    tensionBonus: 15,
+    si: {
+      name: '7. සූෆි / අධ්‍යාත්මික දෘෂ්ටිය (Sufi / Mystical)',
+      tag: 'දේව අභිරහස සහ තස්ලීම් (Taslim)',
+      shortDesc:
+        'තර්කයෙන් විසඳිය නොහැකි අභිරහසක් ලෙසත්, ආදරය සහ යටත් වීම (Taslim) තුළින් අත්විඳිය යුතු යථාර්ථයක් ලෙසත් දැකීම.',
+      deepAnalysis:
+        'රූමි සහ ඉබ්න් අරබි වැනි සූෆි චින්තකයන්ට අනුව, සදාචාරාත්මක වගකීමේදී (Shari\'ah) අප නිදහස් මිනිසුන් ලෙස ක්‍රියා කළ යුතු අතර, අධ්‍යාත්මික යථාර්ථයේදී (Haqiqah) සියල්ල දෙවියන් වෙතින් බව දකියි. මේ දෙක අතර පරස්පරතාව විසඳෙන්නේ තර්කයෙන් නොව අධ්‍යාත්මික අත්දැකීමෙනි.'
+    },
+    en: {
+      name: '7. Sufi / Mystical View',
+      tag: 'Sacred Paradox & Spiritual Surrender (Taslim)',
+      shortDesc:
+        'An existential mystery beyond pure logic—experienced by acting responsibly in the world while surrendering inwardly to God.',
+      deepAnalysis:
+        'Mystics like Rumi and Ibn Arabi hold that on the plane of ethical duty (Shari\'ah) we are free agents, while on the plane of ultimate reality (Haqiqah) God is the sole actor—a paradox resolved through spiritual humility rather than syllogisms.'
+    }
+  }
+];
+
+// --- 5 SCENARIOS WITH TIME REWIND & SCHOLARS' DEBATE ---
+const SCENARIOS = [
+  {
+    id: 1,
+    si: {
+      title: 'අතරමගදී හමුවූ මුදල් පසුම්බිය',
+      context:
+        'පාළු වීදියක ඇවිද යන විට විශාල මුදල් ප්‍රමාණයක් සහ හැඳුනුම්පතක් ඇති පසුම්බියක් ඔබට හමුවේ. කිසිවෙකු ඔබ දෙස බලා නැත; ඔබට ද මේ මොහොතේ දැඩි මුදල් අවශ්‍යතාවක් පවතී.',
+      choices: [
+        {
+          id: 'c1_a',
+          label: 'හැඳුනුම්පතේ ලිපිනය සොයා ගොස් පසුම්බිය හිමිකරුට භාර දෙමි.',
+          rewindQuestion:
+            'අපි හිතමු කාලය හරියටම විනාඩි 1කට පෙරට ගෙන ගියා කියලා — ඔබේ සිතුවිලි, අවට පරිසරය සහ "ඔබ පසුම්බිය ආපසු දෙන බවට ඇති දෙවියන්ගේ පූර්ව දැනුම" ඒ ආකාරයෙන්ම තිබියදී, ඔබට එය තබා ගැනීමට හැකියාවක් තිබුණාද?',
+          debate: {
+            ghazali:
+              'අල්-ගසාලි (Al-Ghazali): "ඔබ පසුම්බිය ආපසු දීමේ ක්‍රියාව මැව්වේ දෙවියන්ය; නමුත් ඔබ එය සතුටින් අත්පත් කරගත් (Kasb) නිසා ඔබට පින් හිමිවේ."',
+            ibnRushd:
+              'ඉබ්න් රුෂ්ද් (Ibn Rushd): "ඔබේ අවංක හැදියාව සහ හෘද සාක්ෂිය යන අභ්‍යන්තර හේතු මත ඔබ මෙය තෝරා ගත්තේය. එය බලහත්කාරයක් නොව බුද්ධිමත් තේරීමකි."',
+            mutazili:
+              'මු\'තසිලා විද්වතා (Mu\'tazili): "ඔබට එය සොරකම් කිරීමට සැබෑ හැකියාවක් තිබුණු නිසාම පමණයි, ඔබේ මේ අවංකකමට දෙවියන් ඉදිරියේ වටිනාකමක් ලැබෙන්නේ!"'
+          }
+        },
+        {
+          id: 'c1_b',
+          label: 'කිසිවෙකු නොදුටු නිසා මුදල් තබාගෙන පසුම්බිය ඉවත දමමි.',
+          rewindQuestion:
+            'කාලය විනාඩි 1කට ආපස්සට ගෙන ගියහොත්, දෙවියන් වහන්සේ අනාදිමත් කාලයක සිට දැන සිටි දේ බොරු කරමින්, ඔබට මේ මුදල් නොගෙන සිටීමට සැබැවින්ම හැකියාවක් තිබුණාද?',
+          debate: {
+            ghazali:
+              'අල්-ගසාලි (Al-Ghazali): "දෙවියන් පාපයට අකමැති වුවත්, ඔබේ තේරීමට ඉඩ දෙමින් එම ක්‍රියාව සිදුවීමට ඉඩ හැරියේය. වගකීම ඔබ සතුය."',
+            ibnRushd:
+              'ඉබ්න් රුෂ්ද් (Ibn Rushd): "මූල්‍ය පීඩනය සහ තණ්හාව ඔබේ බුද්ධිය යටපත් කළේය; නමුත් එය පාලනය කිරීමේ ශක්තිය ඔබ තුළ තිබුණි."',
+            mutazili:
+              'මු\'තසිලා විද්වතා (Mu\'tazili): "මෙම නරක ක්‍රියාව දෙවියන් මැවූ දෙයක් නොවේ! එය සම්පූර්ණයෙන්ම ඔබේම නිර්මාණයකි."'
+          }
+        }
+      ]
+    },
+    en: {
+      title: 'The Lost Wallet on an Empty Street',
+      context:
+        'Walking down a quiet street, you find a wallet stuffed with cash and an ID card. Nobody is watching, and you are currently facing urgent financial hardship.',
+      choices: [
+        {
+          id: 'c1_a',
+          label: 'Track down the address on the ID and return the wallet intact.',
+          rewindQuestion:
+            'Suppose time were rewound by exactly 1 minute—with every thought, circumstance, and God\'s infallible foreknowledge that you will return it held identical—could you have kept the wallet?',
+          debate: {
+            ghazali:
+              'Al-Ghazali: "God created the act of returning it, yet because you voluntarily acquired (Kasb) that intention, your reward is deserved."',
+            ibnRushd:
+              'Ibn Rushd: "Your moral upbringing and conscience acted as internal causes guiding a rational choice—neither random nor coerced."',
+            mutazili:
+              'Mu\'tazili Scholar: "Only because you genuinely had the power to steal it does your honesty carry moral worth before a Just God!"'
+          }
+        },
+        {
+          id: 'c1_b',
+          label: 'Keep the cash since nobody saw you, and discard the wallet.',
+          rewindQuestion:
+            'If time rewound 1 minute, could you have refrained from taking the cash—thereby rendering God\'s eternal foreknowledge false?',
+          debate: {
+            ghazali:
+              'Al-Ghazali: "God was displeased with the sin, yet permitted the act to exist alongside your acquisition (Kasb) of it."',
+            ibnRushd:
+              'Ibn Rushd: "Financial desire clouded your rational judgment, though you possessed the faculty to resist it."',
+            mutazili:
+              'Mu\'tazili Scholar: "God neither willed nor created this theft; you alone authored it."'
+          }
+        }
+      ]
+    }
+  },
+  {
+    id: 2,
+    si: {
+      title: 'රැකියා ස්ථානයේ අසාධාරණයට එරෙහි වීම',
+      context:
+        'ඔබේ ආයතනයේ ප්‍රධානියා අහිංසක සේවකයෙකු පිට වරද පටවා ඔහුව සේවයෙන් පහ කිරීමට සූදානම් වේ. සත්‍යය හෙළි කළහොත් ඔබේ උසස්වීම අහිමි වීමට ඉඩ ඇත.',
+      choices: [
+        {
+          id: 'c2_a',
+          label: 'මගේ උසස්වීම අවදානමේ හෙළමින් අහිංසකයා වෙනුවෙන් සත්‍යය කතා කරමි.',
+          rewindQuestion:
+            'කාලය විනාඩි 1කට පෙරට ගෙන ගියහොත්, "ලව්හුල් මහ්ෆූස්" (ආරක්ෂිත පුවරුවේ) කලින්ම ලියවී ඇති දේ වෙනස් කරමින් ඔබට නිහඬව සිටීමට හැකි වේද?',
+          debate: {
+            ghazali:
+              'අල්-ගසාලි (Al-Ghazali): "ඔබේ ධෛර්යය දෙවියන්ගේ අනුග්‍රහයකි (Tawfiq); එහෙත් එය ඔබේ තේරීමක් ලෙස අත්පත් කර ගැනීමට ඔබට ඉඩ ලැබුණි."',
+            ibnRushd:
+              'ඉබ්න් රුෂ්ද් (Ibn Rushd): "යුක්තිය පිළිබඳ බුද්ධිමය අවබෝධය ඔබේ කැමැත්ත මෙහෙයවීය."',
+            mutazili:
+              'මු\'තසිලා විද්වතා (Mu\'tazili): "ඔබ ස්වාධීනව සත්‍යය තෝරා ගත්තේය; දෙවියන්ගේ යුක්තිය පිළිබිඹු වන්නේ එවැනි නිදහස් ක්‍රියාවලිනි."'
+          }
+        },
+        {
+          id: 'c2_b',
+          label: 'මගේ රැකියාව ආරක්ෂා කර ගැනීමට නිහඬව සිටිමි.',
+          rewindQuestion:
+            'කාලය විනාඩි 1කට ආපස්සට ගියහොත්, දෙවියන් කලින්ම දැන සිටි ඔබේ මේ නිහඬතාවය බිඳ දමමින් කතා කිරීමට ඔබට හැකියාවක් තිබුණාද?',
+          debate: {
+            ghazali:
+              'අල්-ගසාලි (Al-Ghazali): "දෙවියන්ගේ දැනුම ඔබේ දිව බැඳ තැබුවේ නැත; ඔබ බිය තෝරා ගත් බව දෙවියන් කලින් දැන සිටියා පමණි."',
+            ibnRushd:
+              'ඉබ්න් රුෂ්ද් (Ibn Rushd): "රැකියාව අහිමි වේය යන බාහිර භීතිය ඔබේ තීරණයට බලපෑවද, එය නොවැළැක්විය හැකි දෙයක් නොවීය."',
+            mutazili:
+              'මු\'තසිලා විද්වතා (Mu\'tazili): "අසාධාරණය ඉදිරියේ නිහඬ වීම ඔබේම තෝරා ගැනීමක් නිසා ඔබ එයට වගකිව යුතුය."'
+          }
+        }
+      ]
+    },
+    en: {
+      title: 'Standing Against Workplace Injustice',
+      context:
+        'Your manager is falsely blaming an innocent junior colleague for a major error and plans to fire them. Speaking up will likely cost you your promotion.',
+      choices: [
+        {
+          id: 'c2_a',
+          label: 'Speak up for the innocent colleague despite risking your promotion.',
+          rewindQuestion:
+            'If time rewound 1 minute, could you have remained silent and altered what was already inscribed in eternal divine knowledge?',
+          debate: {
+            ghazali:
+              'Al-Ghazali: "Courage is a divine grace (Tawfiq), yet you voluntarily acquired (Kasb) the stand for truth."',
+            ibnRushd:
+              'Ibn Rushd: "Your rational grasp of justice moved your will; divine knowledge is timeless, not coercive."',
+            mutazili:
+              'Mu\'tazili Scholar: "You autonomously authored this stand; divine justice is mirrored in free moral courage."'
+          }
+        },
+        {
+          id: 'c2_b',
+          label: 'Stay silent to protect your own career and stability.',
+          rewindQuestion:
+            'Rewinding 1 minute, did you possess the genuine capacity to speak up despite God\'s infallible foreknowledge of your silence?',
+          debate: {
+            ghazali:
+              'Al-Ghazali: "God\'s foreknowledge did not gag you; God simply knew you would choose fear."',
+            ibnRushd:
+              'Ibn Rushd: "Fear of job loss was a powerful external cause, yet your rational will could have overridden it."',
+            mutazili:
+              'Mu\'tazili Scholar: "Because you were free to speak, your silence carries full moral accountability."'
+          }
+        }
+      ]
+    }
+  },
+  {
+    id: 3,
+    si: {
+      title: 'වරදක් කළ මිතුරෙකුට සමාව දීම',
+      context:
+        'ඔබ විශ්වාස කළ සමීප මිතුරෙකු ඔබේ රහසක් හෙළි කර ඔබට විශාල සිත් වේදනාවක් ඇති කළේය. දැන් ඔහු පසුතැවී සමාව අයදියි.',
+      choices: [
+        {
+          id: 'c3_a',
+          label: 'වේදනාව ඉවසාගෙන ඔහුට අවංකවම සමාව දෙමි.',
+          rewindQuestion:
+            'කාලය විනාඩි 1කට ආපස්සට ගියහොත්, ඔබේ හදවත තුළ ඇති වූ මේ සමාව දීමේ සිතුවිල්ල නොපැමිණ සිටීමට ඔබට හැකි වේද?',
+          debate: {
+            ghazali:
+              'අල්-ගසාලි (Al-Ghazali): "හදවත් පෙරළන්නේ දෙවියන් වහන්සේය; නමුත් සමාව දීමට ඔබ තැබූ පියවර ඔබේම අත්පත් කර ගැනීමකි."',
+            ibnRushd:
+              'ඉබ්න් රුෂ්ද් (Ibn Rushd): "මිත්‍රත්වයේ වටිනාකම පිළිබඳ බුද්ධිමය සිතුවිල්ල ඔබේ කෝපය සමනය කළේය."',
+            mutazili:
+              'මු\'තසිලා විද්වතා (Mu\'tazili): "ඔබ කෝපයෙන් පළිගැනීමට හැකියාව තිබියදී සමාව තෝරා ගත්තේ ඔබේම නිදහස් ශක්තියෙනි."'
+          }
+        },
+        {
+          id: 'c3_b',
+          label: 'සමාව නොදී ඔහු සමඟ සියලු සබඳතා නවතා දමමි.',
+          rewindQuestion:
+            'කාලය විනාඩි 1කට පෙරට ගෙන ගියහොත්, දෙවියන්ගේ කැමැත්ත හා දැනුම ඒ ආකාරයෙන්ම තිබියදී ඔබට සමාව දීමට හැකියාවක් තිබුණාද?',
+          debate: {
+            ghazali:
+              'අල්-ගසාලි (Al-Ghazali): "දෙවියන් කෝපය මැව්වද, එය පාලනය නොකර අත්පත් කර ගත්තේ ඔබයි."',
+            ibnRushd:
+              'ඉබ්න් රුෂ්ද් (Ibn Rushd): "පාවාදීමේ වේදනාව ප්‍රබල හේතුවක් වුවද, බුද්ධියෙන් එය ජය ගැනීමට ඉඩ තිබුණි."',
+            mutazili:
+              'මු\'තසිලා විද්වතා (Mu\'tazili): "සබඳතා බිඳ දැමීම ඔබේම ස්වාධීන තීරණයක් මිස දේව නියමයක් නොවේ."'
+          }
+        }
+      ]
+    },
+    en: {
+      title: 'Forgiving a Friend Who Betrayed Your Trust',
+      context:
+        'A close friend revealed a private secret of yours, causing deep emotional pain. Today, they return remorseful and ask for your forgiveness.',
+      choices: [
+        {
+          id: 'c3_a',
+          label: 'Let go of the hurt and sincerely forgive them.',
+          rewindQuestion:
+            'If time rewound 1 minute, could this inclination toward mercy in your heart have failed to arise while God\'s foreknowledge remained intact?',
+          debate: {
+            ghazali:
+              'Al-Ghazali: "God turns hearts, yet your inward assent to forgive is your own acquisition (Kasb)."',
+            ibnRushd:
+              'Ibn Rushd: "Rational reflection on long-term friendship outweighed your immediate anger."',
+            mutazili:
+              'Mu\'tazili Scholar: "You freely chose mercy when retaliation was completely within your power."'
+          }
+        },
+        {
+          id: 'c3_b',
+          label: 'Refuse forgiveness and cut ties completely.',
+          rewindQuestion:
+            'Rewinding 1 minute, was softening your heart genuinely possible if God already foreknew your refusal?',
+          debate: {
+            ghazali:
+              'Al-Ghazali: "God created the capacity for anger, while you acquired the act of holding onto it."',
+            ibnRushd:
+              'Ibn Rushd: "The sting of betrayal caused your withdrawal, though reason could have chosen otherwise."',
+            mutazili:
+              'Mu\'tazili Scholar: "Cutting ties was solely your autonomous act, independent of divine decree."'
+          }
+        }
+      ]
+    }
+  },
+  {
+    id: 4,
+    si: {
+      title: 'පහසු බොරුවක් වෙනුවට අපහසු සත්‍යය',
+      context:
+        'ඔබ අතින් සිදු වූ සුළු අතපසුවීමක් නිසා පවුලේ වටිනා භාණ්ඩයකට හානි වී ඇත. එය ඔබ අතින් සිදු නොවූ බව පැවසුවහොත් කිසිවෙකු සැක නොකරයි.',
+      choices: [
+        {
+          id: 'c4_a',
+          label: 'දොස් ඇසීමට සිදු වුවද සත්‍යය පිළිගනිමි.',
+          rewindQuestion:
+            'කාලය විනාඩි 1කට ආපස්සට ගෙන ගියහොත්, ඔබ සත්‍යය පවසන බව දෙවියන් කලින්ම දැන සිටියදී, ඔබට බොරුවක් කීමට සැබෑ හැකියාවක් තිබුණාද?',
+          debate: {
+            ghazali:
+              'අල්-ගසාලි (Al-Ghazali): "සත්‍යය කීමේ ශක්තිය දෙවියන්ගෙනි; එය තෝරා ගැනීමේ ගෞරවය ඔබටය."',
+            ibnRushd:
+              'ඉබ්න් රුෂ්ද් (Ibn Rushd): "සදාචාරාත්මක අවංකභාවය පිළිබඳ අභ්‍යන්තර නියාමය ඔබ මෙහෙයවීය."',
+            mutazili:
+              'මු\'තසිලා විද්වතා (Mu\'tazili): "බොරුවක් කීමේ සම්පූර්ණ නිදහස තිබියදී සත්‍යය තෝරා ගැනීම ඔබේම ජයග්‍රහණයකි."'
+          }
+        },
+        {
+          id: 'c4_b',
+          label: 'ගැටුමෙන් බේරීමට සුළු බොරුවක් කියමි.',
+          rewindQuestion:
+            'කාලය විනාඩි 1කට ආපස්සට ගියහොත්, ඔබේ දිවෙන් පිටවූ ඒ බොරුව වෙනුවට සත්‍යය පැවසීමට ඔබට හැකියාවක් තිබුණාද?',
+          debate: {
+            ghazali:
+              'අල්-ගසාලි (Al-Ghazali): "දෙවියන්ගේ දැනුම කැඩපතක් මෙනි; කැඩපත ඔබට බොරු කියන්නට බල කළේ නැත."',
+            ibnRushd:
+              'ඉබ්න් රුෂ්ද් (Ibn Rushd): "ගැටුමට ඇති බිය ඔබේ තීරණයට හේතු වුවත්, එය ඔබේ වගකීම අහෝසි නොකරයි."',
+            mutazili:
+              'මු\'තසිලා විද්වතා (Mu\'tazili): "දෙවියන් බොරුවට අකමැතිය; එබැවින් එම බොරුව මැව්වේ ඔබම මිස දෙවියන් නොවේ."'
+          }
+        }
+      ]
+    },
+    en: {
+      title: 'Costly Truth Over an Easy Lie',
+      context:
+        'Due to a moment of carelessness, you accidentally damaged a cherished family heirloom. If you deny involvement, no one will ever suspect you.',
+      choices: [
+        {
+          id: 'c4_a',
+          label: 'Admit the truth honestly and accept the blame.',
+          rewindQuestion:
+            'If time rewound 1 minute, could you have lied while God\'s eternal knowledge already contained your confession?',
+          debate: {
+            ghazali:
+              'Al-Ghazali: "The power to speak truth comes from God; the acquisition (Kasb) of honesty belongs to you."',
+            ibnRushd:
+              'Ibn Rushd: "Internal moral integrity outweighed fear of blame in your rational deliberation."',
+            mutazili:
+              'Mu\'tazili Scholar: "You authored this confession freely when deception was completely open to you."'
+          }
+        },
+        {
+          id: 'c4_b',
+          label: 'Tell a convenient lie to avoid conflict.',
+          rewindQuestion:
+            'Rewinding 1 minute, could your tongue have spoken the truth instead of the lie God foreknew?',
+          debate: {
+            ghazali:
+              'Al-Ghazali: "Foreknowledge is like a mirror—the mirror reflects your lie, it does not cause it."',
+            ibnRushd:
+              'Ibn Rushd: "Aversion to conflict motivated your words, yet your rational agency remained intact."',
+            mutazili:
+              'Mu\'tazili Scholar: "God never creates falsehood; you alone created that lie."'
+          }
+        }
+      ]
+    }
+  },
+  {
+    id: 5,
+    si: {
+      title: 'අවදානමක් ගෙන ආගන්තුකයෙකුට උදව් කිරීම',
+      context:
+        'තද වැසි සහිත රාත්‍රියක අතරමං වූ ආගන්තුකයෙකු උදව් ඉල්ලයි. ඔහුට උදව් කිරීමට ගියහොත් ඔබේ වැදගත් ගමනක් ප්‍රමාද වන අතර යම් අවදානමක් ද ඇත.',
+      choices: [
+        {
+          id: 'c5_a',
+          label: 'මගේ ප්‍රමාදය නොතකා ආගන්තුකයාට පිහිට වෙමි.',
+          rewindQuestion:
+            'කාලය විනාඩි 1කට ආපස්සට ගෙන ගියහොත්, ආගන්තුකයා බේරීම දෙවියන්ගේ සැලැස්මේ තිබියදී, ඔබට උදව් නොකර යාමට හැකි වේද?',
+          debate: {
+            ghazali:
+              'අල්-ගසාලි (Al-Ghazali): "ආගන්තුකයා බේරීම දේව නියමය වුවද, එම යහපතට ඔබව හවුල් කර ගැනීම ඔබේ වාසනාවකි."',
+            ibnRushd:
+              'ඉබ්න් රුෂ්ද් (Ibn Rushd): "අනුකම්පාව සහ මනුෂ්‍යත්වය ඔබේ තීරණයේ හේතුඵල සාධක විය."',
+            mutazili:
+              'මු\'තසිලා විද්වතා (Mu\'tazili): "ඔබ නොනැවතුණා නම් ඔහුට උදව් නොලැබෙන්නට තිබුණි; මිනිස් තේරීම් සැබෑ වෙනසක් කරයි."'
+          }
+        },
+        {
+          id: 'c5_b',
+          label: 'ආරක්ෂාව සහ වේලාව ගැන සිතා නොනැවතී යමි.',
+          rewindQuestion:
+            'කාලය විනාඩි 1කට ආපස්සට ගෙන ගියහොත්, දෙවියන් කලින්ම දැන සිටි ඔබේ මේ පසුබැසීම වෙනස් කර නැවතීමට ඔබට හැකියාවක් තිබුණාද?',
+          debate: {
+            ghazali:
+              'අල්-ගසාලි (Al-Ghazali): "ඔබේ තීරණය ඔබේ වගකීමයි; එහෙත් ආගන්තුකයාගේ ඉරණම දෙවියන් වෙනත් මාර්ගයකින් විසඳනු ඇත."',
+            ibnRushd:
+              'ඉබ්න් රුෂ්ද් (Ibn Rushd): "අවදානම පිළිබඳ ගණනය කිරීම ඔබේ තීරණයට මුල් විය."',
+            mutazili:
+              'මු\'තසිලා විද්වතා (Mu\'tazili): "උදව් කිරීමට ශක්තිය තිබියදී මග හැරීම ඔබේම නිදහස් තේරීමකි."'
+          }
+        }
+      ]
+    },
+    en: {
+      title: 'Helping a Stranger at Personal Cost',
+      context:
+        'On a stormy night, a stranded stranger asks for help. Assisting them will delay an important commitment and carries some personal inconvenience.',
+      choices: [
+        {
+          id: 'c5_a',
+          label: 'Stop and help the stranger despite the delay and risk.',
+          rewindQuestion:
+            'If time rewound 1 minute, could you have driven past if rescuing this stranger was already decreed in God\'s eternal plan?',
+          debate: {
+            ghazali:
+              'Al-Ghazali: "The rescue was decreed, yet God honored you by allowing you to acquire (Kasb) the deed."',
+            ibnRushd:
+              'Ibn Rushd: "Compassion and moral duty served as the rational causes behind your choice."',
+            mutazili:
+              'Mu\'tazili Scholar: "Had you driven past, the outcome would genuinely have differed; human agency changes the world."'
+          }
+        },
+        {
+          id: 'c5_b',
+          label: 'Drive past to prioritize your own schedule and safety.',
+          rewindQuestion:
+            'Rewinding 1 minute, could you have stopped if God already foreknew with 100% certainty that you would drive past?',
+          debate: {
+            ghazali:
+              'Al-Ghazali: "You acquired the refusal to stop; God will provide for the stranger through another means."',
+            ibnRushd:
+              'Ibn Rushd: "Risk calculation outweighed empathy in your internal deliberation."',
+            mutazili:
+              'Mu\'tazili Scholar: "Passing by when able to help was your autonomous choice and moral responsibility."'
+          }
+        }
+      ]
+    }
+  }
+];
+
+// --- HELPER: CALCULATE PHILOSOPHICAL TENSION ---
+function computeTension(freeWill, divineWill, manualOffset) {
+  const harmonicProduct = (freeWill * divineWill) / 80;
+  const raw = Math.round(harmonicProduct + manualOffset);
+  return Math.max(5, Math.min(100, raw));
+}
+
+export default function App() {
+  const [lang, setLang] = useState('si');
+  const [phase, setPhase] = useState('intro'); // 'intro' | 'playing' | 'summary' | 'custom'
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [step, setStep] = useState(1); // 1: Choice, 2: Time Rewind, 3: Scholars' Debate, 4: All 7 Lenses, 5: Deep Analysis
+
+  // Core Meters (0 - 100) - Preserved & Always Visible
+  const [freeWill, setFreeWill] = useState(50);
+  const [divineWill, setDivineWill] = useState(50);
+  const [tensionOffset, setTensionOffset] = useState(12);
+
+  // Selections
+  const [selectedChoice, setSelectedChoice] = useState(null);
+  const [rewindAnswer, setRewindAnswer] = useState(null); // 'yes' | 'no' | 'paradox'
+  const [activeScholar, setActiveScholar] = useState('ghazali');
+  const [selectedSchool, setSelectedSchool] = useState(null);
+
+  // History & Modals
+  const [history, setHistory] = useState([]);
+  const [showReview, setShowReview] = useState(false);
+  const [showTriadModal, setShowTriadModal] = useState(false);
+
+  // Logical Triad Explorer Interactive States
+  const [triadOmniscience, setTriadOmniscience] = useState(95);
+  const [triadFreeWill, setTriadFreeWill] = useState(95);
+  const [triadAccountability, setTriadAccountability] = useState(95);
+
+  // Custom Dilemma Builder States
+  const [customSituation, setCustomSituation] = useState('');
+  const [customAction, setCustomAction] = useState('');
+  const [customActiveSchool, setCustomActiveSchool] = useState('ashari');
+
+  const philosophicalTension = useMemo(
+    () => computeTension(freeWill, divineWill, tensionOffset),
+    [freeWill, divineWill, tensionOffset]
+  );
+
+  // Triad Collision calculation
+  const triadCollisionScore = useMemo(() => {
+    const minVal = Math.min(triadOmniscience, triadFreeWill, triadAccountability);
+    const avgVal = (triadOmniscience + triadFreeWill + triadAccountability) / 3;
+    return Math.round(minVal * 0.65 + avgVal * 0.35);
+  }, [triadOmniscience, triadFreeWill, triadAccountability]);
+
+  // Inject Google Fonts for Sinhala + Inter
+  useEffect(() => {
+    const linkId = 'qadar-v2-fonts';
+    if (!document.getElementById(linkId)) {
+      const link = document.createElement('link');
+      link.id = linkId;
+      link.rel = 'stylesheet';
+      link.href =
+        'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap';
+      document.head.appendChild(link);
+    }
+  }, []);
+
+  const currentScenario = SCENARIOS[currentIdx];
+  const scenarioContent = currentScenario[lang];
+
+  const handleStartGame = () => {
+    setFreeWill(50);
+    setDivineWill(50);
+    setTensionOffset(12);
+    setCurrentIdx(0);
+    setStep(1);
+    setSelectedChoice(null);
+    setRewindAnswer(null);
+    setActiveScholar('ghazali');
+    setSelectedSchool(null);
+    setHistory([]);
+    setShowReview(false);
+    setPhase('playing');
+  };
+
+  const handleSelectChoice = (choice) => {
+    setSelectedChoice(choice);
+    setStep(2);
+  };
+
+  const handleRewindResponse = (ans) => {
+    setRewindAnswer(ans);
+    if (ans === 'yes') {
+      // Saying "Yes I could change what God infallibly foreknew" boosts Free Will & Tension
+      setFreeWill((prev) => Math.min(100, prev + 8));
+      setTensionOffset((prev) => Math.min(45, prev + 8));
+    } else if (ans === 'no') {
+      // Saying "No I could not choose differently" boosts Divine Will & reduces Free Will
+      setDivineWill((prev) => Math.min(100, prev + 8));
+      setFreeWill((prev) => Math.max(5, prev - 7));
+    } else {
+      // Admitting the paradox raises tension directly
+      setTensionOffset((prev) => Math.min(45, prev + 12));
+    }
+    setStep(3);
+  };
+
+  const handleSelectSchool = (school) => {
+    setSelectedSchool(school);
+    const nextFW = Math.max(5, Math.min(100, freeWill + school.fwDelta));
+    const nextDW = Math.max(5, Math.min(100, divineWill + school.dwDelta));
+    const nextOffset = Math.max(-15, Math.min(45, tensionOffset + school.tensionBonus));
+
+    setFreeWill(nextFW);
+    setDivineWill(nextDW);
+    setTensionOffset(nextOffset);
+
+    setHistory((prev) => [
+      ...prev,
+      {
+        scenarioId: currentScenario.id,
+        choiceId: selectedChoice.id,
+        rewindAnswer,
+        schoolId: school.id,
+        fwSnapshot: nextFW,
+        dwSnapshot: nextDW,
+        tensionSnapshot: computeTension(nextFW, nextDW, nextOffset)
+      }
+    ]);
+
+    setStep(5);
+  };
+
+  const handleNextScenario = () => {
+    if (currentIdx + 1 < SCENARIOS.length) {
+      setCurrentIdx((prev) => prev + 1);
+      setSelectedChoice(null);
+      setRewindAnswer(null);
+      setActiveScholar('ghazali');
+      setSelectedSchool(null);
+      setStep(1);
+    } else {
+      setPhase('summary');
+    }
+  };
+
+  // Spectrum position: 0 = Pure Determinism (Jabriyya), 100 = Pure Free Will (Mu'tazila)
+  const spectrumPosition = useMemo(() => {
+    const total = freeWill + divineWill;
+    if (total === 0) return 50;
+    return Math.round((freeWill / total) * 100);
+  }, [freeWill, divineWill]);
+
+  // Dominant Profile Summary
+  const profileResult = useMemo(() => {
+    const counts = {};
+    SEVEN_SCHOOLS.forEach((s) => (counts[s.id] = 0));
+    history.forEach((h) => {
+      if (counts[h.schoolId] !== undefined) counts[h.schoolId] += 1;
+    });
+
+    const sortedSchools = [...SEVEN_SCHOOLS].sort(
+      (a, b) => (counts[b.id] || 0) - (counts[a.id] || 0)
+    );
+    const topSchool = sortedSchools[0];
+
+    return {
+      topSchool,
+      counts
+    };
+  }, [history]);
+
+  return (
+    <div
+      className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col justify-between selection:bg-amber-500/30 selection:text-amber-200 overflow-x-hidden"
+      style={{ fontFamily: "'Noto Sans Sinhala', 'Inter', sans-serif" }}
+    >
+      {/* Ambient Islamic Geometric Star & Glow Background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-32 -left-32 w-80 sm:w-[28rem] h-80 sm:h-[28rem] rounded-full bg-amber-500/[0.07] blur-3xl" />
+        <div className="absolute top-1/3 -right-32 w-80 sm:w-[28rem] h-80 sm:h-[28rem] rounded-full bg-indigo-500/[0.07] blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-emerald-500/[0.04] blur-3xl" />
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 2px 2px, rgba(251,191,36,0.9) 1px, transparent 0)',
+            backgroundSize: '32px 32px'
+          }}
+        />
+      </div>
+
+      {/* =====================================================================
+          STICKY TOP HEADER WITH LIVE PERCENTAGE TENSION METERS (ALWAYS VISIBLE)
+         ===================================================================== */}
+      <header className="sticky top-0 z-30 bg-[#070b14]/92 backdrop-blur-xl border-b border-amber-500/15 shadow-lg shadow-black/40">
+        <div className="max-w-4xl mx-auto px-3 sm:px-5 py-2.5 sm:py-3.5">
+          {/* Top Bar: Title + Action Buttons */}
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <div
+              onClick={() => setPhase('intro')}
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0"
+            >
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-500/25 to-amber-600/10 border border-amber-400/35 flex items-center justify-center text-amber-300 shrink-0 shadow-inner">
+                <Compass className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <h1 className="text-sm sm:text-lg font-bold tracking-tight text-amber-100 truncate">
+                    {lang === 'si' ? 'තීරණ සහ දේව කැමැත්තේ හන්දිය' : 'The Crossroads of Qadar'}
+                  </h1>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+                    V2
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 hidden sm:block truncate">
+                  {lang === 'si'
+                    ? 'ඉස්ලාමීය දේවධර්මීය ගුරුකුල 7ම ඇසුරින් සැකසූ දාර්ශනික ගවේෂණය'
+                    : 'Philosophical Exploration Across All 7 Classical Islamic Schools'}
+                </p>
+              </div>
+            </div>
+
+            {/* Right Controls: Logical Triad, Custom Builder, Reset, Lang */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <button
+                onClick={() => setShowTriadModal(true)}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-[11px] sm:text-xs font-semibold text-amber-200 transition-all cursor-pointer"
+                title={lang === 'si' ? 'තාර්කික ත්‍රිකෝණ පරීක්ෂාව' : 'Logical Triad Explorer'}
+              >
+                <Triangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span className="hidden md:inline">
+                  {lang === 'si' ? 'තාර්කික ත්‍රිකෝණය' : 'Logical Triad'}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setPhase(phase === 'custom' ? 'playing' : 'custom')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
+                  phase === 'custom'
+                    ? 'bg-indigo-500/25 border-indigo-400/50 text-indigo-200'
+                    : 'bg-slate-900 hover:bg-slate-800 border-slate-700/80 text-slate-200'
+                }`}
+                title={lang === 'si' ? 'ඔබේම ගැටලුවක් පරීක්ෂා කරන්න' : 'Custom Dilemma'}
+              >
+                <PenTool className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                <span className="hidden md:inline">
+                  {lang === 'si' ? 'ඔබේ ගැටලුව' : 'Custom Test'}
+                </span>
+              </button>
+
+              {phase !== 'intro' && (
+                <button
+                  onClick={handleStartGame}
+                  title={lang === 'si' ? 'නැවත අරඹන්න' : 'Reset'}
+                  className="p-1.5 sm:p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </button>
+              )}
+
+              <button
+                onClick={() => setLang((prev) => (prev === 'si' ? 'en' : 'si'))}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[11px] sm:text-xs font-semibold text-amber-300 transition-all cursor-pointer"
+              >
+                <Globe className="w-3.5 h-3.5 shrink-0" />
+                <span>{lang === 'si' ? 'EN' : 'සිංහල'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* THREE LIVE PERCENTAGE TENSION METERS (Mobile-Optimized Compact Grid) */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
+            {/* Meter 1: Human Free Will */}
+            <div className="bg-slate-900/95 border border-emerald-500/20 rounded-xl p-2 sm:p-2.5">
+              <div className="flex items-center justify-between gap-1 text-[10px] sm:text-xs mb-1">
+                <span className="font-semibold text-emerald-300 flex items-center gap-1 truncate">
+                  <Scale className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 shrink-0" />
+                  <span className="truncate">
+                    {lang === 'si' ? 'නිදහස් කැමැත්ත' : 'Free Will'}
+                  </span>
+                </span>
+                <span className="font-mono font-bold text-emerald-300 shrink-0">
+                  {freeWill}%
+                </span>
+              </div>
+              <div className="w-full h-1.5 sm:h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${freeWill}%` }}
+                />
+              </div>
+              <p className="text-[9px] sm:text-[10px] text-slate-500 mt-1 truncate hidden sm:block">
+                Human Free Will
+              </p>
+            </div>
+
+            {/* Meter 2: Divine Sovereignty */}
+            <div className="bg-slate-900/95 border border-sky-500/20 rounded-xl p-2 sm:p-2.5">
+              <div className="flex items-center justify-between gap-1 text-[10px] sm:text-xs mb-1">
+                <span className="font-semibold text-sky-300 flex items-center gap-1 truncate">
+                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-400 shrink-0" />
+                  <span className="truncate">
+                    {lang === 'si' ? 'දේව සර්වබලය' : 'Divine Will'}
+                  </span>
+                </span>
+                <span className="font-mono font-bold text-sky-300 shrink-0">
+                  {divineWill}%
+                </span>
+              </div>
+              <div className="w-full h-1.5 sm:h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-sky-600 to-sky-400 rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${divineWill}%` }}
+                />
+              </div>
+              <p className="text-[9px] sm:text-[10px] text-slate-500 mt-1 truncate hidden sm:block">
+                Divine Sovereignty (Al-Qadar)
+              </p>
+            </div>
+
+            {/* Meter 3: Philosophical Tension */}
+            <div
+              className={`rounded-xl p-2 sm:p-2.5 border transition-all duration-500 ${
+                philosophicalTension >= 75
+                  ? 'bg-amber-950/50 border-amber-400/60 shadow-[0_0_20px_rgba(245,158,11,0.18)]'
+                  : 'bg-slate-900/95 border-amber-500/20'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-1 text-[10px] sm:text-xs mb-1">
+                <span className="font-semibold text-amber-300 flex items-center gap-1 truncate">
+                  <Flame
+                    className={`w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 ${
+                      philosophicalTension >= 75
+                        ? 'text-amber-400 animate-pulse'
+                        : 'text-amber-500'
+                    }`}
+                  />
+                  <span className="truncate">
+                    {lang === 'si' ? 'පරස්පරතාව' : 'Paradox'}
+                  </span>
+                </span>
+                <span className="font-mono font-bold text-amber-300 shrink-0">
+                  {philosophicalTension}%
+                </span>
+              </div>
+              <div className="w-full h-1.5 sm:h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${philosophicalTension}%` }}
+                />
+              </div>
+              <div className="hidden sm:flex items-center justify-between mt-1">
+                <p className="text-[10px] text-slate-500 truncate">Philosophical Tension</p>
+                {philosophicalTension >= 75 && (
+                  <span className="text-[9px] font-bold text-amber-300 animate-pulse">
+                    {lang === 'si' ? 'තාර්කික ආතතිය ඉහළයි!' : 'High Tension!'}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* =====================================================================
+          MAIN INTERACTIVE CONTENT AREA
+         ===================================================================== */}
+      <main className="relative z-10 flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-5 py-5 sm:py-8 flex flex-col justify-center">
+        {/* -------------------------------------------------------------------
+            PHASE 1: INTRO SCREEN
+           ------------------------------------------------------------------- */}
+        {phase === 'intro' && (
+          <div className="bg-slate-900/80 backdrop-blur-xl border border-amber-500/20 rounded-2xl p-5 sm:p-9 shadow-2xl space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium">
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>
+                  {lang === 'si'
+                    ? 'සම්භාව්‍ය ඉස්ලාමීය දර්ශනය — V2 සංස්කරණය'
+                    : 'Classical Islamic Philosophy — V2 Edition'}
+                </span>
+              </span>
+            </div>
+
+            <div>
+              <h2 className="text-xl sm:text-3xl font-bold text-amber-50 leading-snug mb-3">
+                {lang === 'si'
+                  ? 'දෙවියන් සියල්ල කලින්ම දැන සිටී නම්, ඔබේ තේරීම සැබෑවක්ද?'
+                  : 'If God Already Knew Everything From Eternity, Was Your Choice Truly Free?'}
+              </h2>
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+                {lang === 'si'
+                  ? 'ඉස්ලාමීය ඉතිහාසයේ මුල් සියවස්වල සිටම මහා දේවධර්මවාදීන් සහ දාර්ශනිකයන් (Mu\'tazila, Jabriyya, Ash\'ari, Maturidi, Shi\'a, Falsafa, Sufi) ගැඹුරින් විමසූ ප්‍රශ්නයකි මේ. මෙම ක්‍රීඩාව තුළ ඔබේ සෑම තීරණයක්ම කාලය ආපස්සට යැවීමේ පරීක්ෂණයකට (Time Rewind), විද්වතුන්ගේ සංවාදයකට සහ මතවාද 7ක විශ්ලේෂණයකට ලක්වේ.'
+                  : 'For centuries, Islamic theologians and philosophers across 7 major traditions debated how Divine Foreknowledge (Al-Qadar), Human Free Will, and Moral Accountability coexist. Test your decisions through Time Rewind thought experiments, Scholars\' Debates, and all 7 theological lenses.'}
+              </p>
+            </div>
+
+            {/* V2 Feature Highlights Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/90 flex items-start gap-3">
+                <Layers className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold text-amber-200">
+                    {lang === 'si' ? 'ඉස්ලාමීය මතවාද 7ම ඇතුළත්' : 'All 7 Theological Schools'}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Mu'tazila, Jabriyya, Ash'ari, Maturidi, Shi'a, Ibn Rushd & Sufi.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/90 flex items-start gap-3">
+                <Rewind className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold text-sky-200">
+                    {lang === 'si'
+                      ? 'කාලය ආපස්සට යැවීමේ පරීක්ෂණය'
+                      : 'Time Rewind Counterfactual Test'}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {lang === 'si'
+                      ? 'පූර්ව දැනුම තිබියදී වෙනත් තීරණයක් ගත හැකිදැයි පරීක්ෂා කරන්න.'
+                      : 'Test whether an alternative choice is possible under infallible foreknowledge.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/90 flex items-start gap-3">
+                <MessageSquare className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold text-emerald-200">
+                    {lang === 'si' ? 'විද්වතුන්ගේ සංවාදය' : "Scholars' Debate Arena"}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {lang === 'si'
+                      ? 'අල්-ගසාලි, ඉබ්න් රුෂ්ද් සහ මු\'තසිලා විද්වතෙකුගේ සජීවී තර්ක.'
+                      : 'Al-Ghazali, Ibn Rushd, and a Mu\'tazili scholar debate your exact choice.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/90 flex items-start gap-3">
+                <PenTool className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold text-indigo-200">
+                    {lang === 'si'
+                      ? 'ඔබේම ගැටලුවක් පරීක්ෂා කරන්න'
+                      : 'Custom Dilemma Builder'}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {lang === 'si'
+                      ? 'ඔබේ සැබෑ ජීවිතයේ තීරණයක් ඇතුළත් කර මත 7න් විග්‍රහ කරන්න.'
+                      : 'Enter your own real-life dilemma and analyze it across all 7 schools.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-1">
+              <button
+                onClick={handleStartGame}
+                className="flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm sm:text-base shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>{lang === 'si' ? 'ගමන අරඹන්න (Start Journey)' : 'Start Journey'}</span>
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => setPhase('custom')}
+                className="py-3.5 px-5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-indigo-500/40 text-indigo-200 font-semibold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <PenTool className="w-4 h-4 text-indigo-400" />
+                <span>{lang === 'si' ? 'ඔබේම ගැටලුවක්' : 'Custom Dilemma'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* -------------------------------------------------------------------
+            PHASE 2: PLAYING THE 5 SCENARIOS (5-STEP FLOW PER SCENARIO)
+           ------------------------------------------------------------------- */}
+        {phase === 'playing' && (
+          <div className="space-y-4 sm:space-y-5">
+            {/* Progress & Step Pills */}
+            <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+              <span className="text-xs font-bold text-amber-300">
+                {lang === 'si'
+                  ? `අවස්ථාව ${currentIdx + 1} / ${SCENARIOS.length}`
+                  : `Scenario ${currentIdx + 1} of ${SCENARIOS.length}`}
+              </span>
+
+              <div className="flex items-center gap-1.5">
+                {[1, 2, 3, 4, 5].map((sNum) => (
+                  <span
+                    key={sNum}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      sNum === step
+                        ? 'w-6 bg-amber-400'
+                        : sNum < step
+                        ? 'w-3 bg-emerald-500/80'
+                        : 'w-2.5 bg-slate-800'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Scenario Main Glass Card */}
+            <div className="bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 sm:p-7 shadow-2xl space-y-5">
+              {/* Scenario Title & Context */}
+              <div>
+                <h2 className="text-lg sm:text-2xl font-bold text-amber-100 mb-2.5">
+                  {scenarioContent.title}
+                </h2>
+                <p className="text-xs sm:text-base text-slate-300 leading-relaxed bg-slate-950/75 border border-slate-800/80 rounded-xl p-3.5 sm:p-4">
+                  {scenarioContent.context}
+                </p>
+              </div>
+
+              {/* STEP 1: MORAL CHOICE */}
+              {step === 1 && (
+                <div className="space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                    {lang === 'si'
+                      ? 'පියවර 1: ඔබේ සදාචාරාත්මක තීරණය තෝරන්න'
+                      : 'Step 1: Make Your Moral Choice'}
+                  </h3>
+                  {scenarioContent.choices.map((choice) => (
+                    <button
+                      key={choice.id}
+                      onClick={() => handleSelectChoice(choice)}
+                      className="w-full text-left p-3.5 sm:p-4 rounded-xl bg-slate-950/90 hover:bg-slate-800/90 border border-slate-800 hover:border-amber-500/50 transition-all group flex items-center justify-between gap-3 cursor-pointer"
+                    >
+                      <span className="text-xs sm:text-base text-slate-100 group-hover:text-amber-200 leading-relaxed">
+                        {choice.label}
+                      </span>
+                      <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-amber-400 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* STEP 2: TIME REWIND / COUNTERFACTUAL TEST */}
+              {step === 2 && selectedChoice && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-400">
+                    <Rewind className="w-4 h-4" />
+                    <span>
+                      {lang === 'si'
+                        ? 'පියවර 2: කාලය ආපස්සට යැවීමේ පරීක්ෂණය (Time Rewind Test)'
+                        : 'Step 2: Time Rewind Counterfactual Test'}
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-emerald-950/25 border border-emerald-500/30 text-xs sm:text-sm text-emerald-200">
+                    <span className="font-bold">
+                      {lang === 'si' ? 'ඔබේ තීරණය: ' : 'Your Choice: '}
+                    </span>
+                    {
+                      scenarioContent.choices.find((c) => c.id === selectedChoice.id)
+                        ?.label
+                    }
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-xl bg-gradient-to-br from-sky-950/40 via-slate-950 to-slate-950 border border-sky-500/40">
+                    <p className="text-sm sm:text-lg font-medium text-sky-100 leading-relaxed">
+                      “
+                      {
+                        scenarioContent.choices.find((c) => c.id === selectedChoice.id)
+                          ?.rewindQuestion
+                      }
+                      ”
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <button
+                      onClick={() => handleRewindResponse('yes')}
+                      className="p-3 rounded-xl bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/40 text-left sm:text-center transition-all cursor-pointer"
+                    >
+                      <div className="text-xs sm:text-sm font-bold text-emerald-300">
+                        {lang === 'si' ? 'ඔව්, වෙනස් කළ හැකියි' : 'Yes, I could'}
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        {lang === 'si'
+                          ? '(නිදහසට මුල් තැන)'
+                          : '(Prioritize Free Will)'}
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => handleRewindResponse('no')}
+                      className="p-3 rounded-xl bg-sky-950/40 hover:bg-sky-900/50 border border-sky-500/40 text-left sm:text-center transition-all cursor-pointer"
+                    >
+                      <div className="text-xs sm:text-sm font-bold text-sky-300">
+                        {lang === 'si' ? 'නැත, වෙනස් කළ නොහැක' : 'No, impossible'}
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        {lang === 'si'
+                          ? '(පූර්ව දැනුමට මුල් තැන)'
+                          : '(Prioritize Foreknowledge)'}
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => handleRewindResponse('paradox')}
+                      className="p-3 rounded-xl bg-amber-950/40 hover:bg-amber-900/50 border border-amber-500/40 text-left sm:text-center transition-all cursor-pointer"
+                    >
+                      <div className="text-xs sm:text-sm font-bold text-amber-300">
+                        {lang === 'si' ? 'මෙය තාර්කික පරස්පරයකි' : 'It is a Paradox'}
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        {lang === 'si'
+                          ? '(දෙකම එකවර ගැටේ)'
+                          : '(Both collide logically)'}
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: SCHOLARS' DEBATE ARENA */}
+              {step === 3 && selectedChoice && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+                      <MessageSquare className="w-4 h-4" />
+                      <span>
+                        {lang === 'si'
+                          ? 'පියවර 3: විද්වතුන්ගේ සංවාදය (Scholars\' Debate Arena)'
+                          : "Step 3: Scholars' Debate Arena"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-400">
+                    {lang === 'si'
+                      ? 'ඔබ ගත් තීරණය ගැන ඉස්ලාමීය ඉතිහාසයේ මහා විද්වතුන් තිදෙනෙකු තර්ක කරන ආකාරය කියවන්න:'
+                      : 'Read how three classical Islamic thinkers debate your exact choice:'}
+                  </p>
+
+                  {/* Scholar Tabs */}
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {[
+                      {
+                        id: 'ghazali',
+                        label: lang === 'si' ? 'අල්-ගසාලි (Ash\'ari)' : 'Al-Ghazali'
+                      },
+                      {
+                        id: 'ibnRushd',
+                        label: lang === 'si' ? 'ඉබ්න් රුෂ්ද් (Falsafa)' : 'Ibn Rushd'
+                      },
+                      {
+                        id: 'mutazili',
+                        label: lang === 'si' ? "මු'තසිලා විද්වතා" : "Mu'tazili Scholar"
+                      }
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveScholar(tab.id)}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap border transition-all cursor-pointer ${
+                          activeScholar === tab.id
+                            ? 'bg-amber-500/20 border-amber-400 text-amber-200'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Active Scholar Speech Bubble */}
+                  <div className="p-4 sm:p-5 rounded-xl bg-slate-950/90 border border-amber-500/30 text-xs sm:text-base text-slate-200 leading-relaxed">
+                    {
+                      scenarioContent.choices.find((c) => c.id === selectedChoice.id)
+                        ?.debate[activeScholar]
+                    }
+                  </div>
+
+                  <button
+                    onClick={() => setStep(4)}
+                    className="w-full py-3.5 px-5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-base transition-all cursor-pointer"
+                  >
+                    {lang === 'si'
+                      ? 'ඉස්ලාමීය මතවාද 7ම පරීක්ෂා කරන්න →'
+                      : 'Compare All 7 Islamic Schools →'}
+                  </button>
+                </div>
+              )}
+
+              {/* STEP 4: ALL 7 THEOLOGICAL LENSES SELECTOR */}
+              {step === 4 && (
+                <div className="space-y-3.5">
+                  <div>
+                    <h3 className="text-sm sm:text-base font-bold text-amber-200">
+                      {lang === 'si'
+                        ? 'පියවර 4: ඉස්ලාමීය මතවාද 7න් එකක් තෝරා විග්‍රහ කරන්න'
+                        : 'Step 4: Select Any of the 7 Islamic Schools'}
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {lang === 'si'
+                        ? 'ඔබ තෝරන මතවාදය අනුව ඉහළ ප්‍රතිශත මීටර 3 සජීවීව වෙනස් වේ.'
+                        : 'Your selection dynamically updates the 3 percentage meters above.'}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2.5 max-h-[55vh] overflow-y-auto pr-1">
+                    {SEVEN_SCHOOLS.map((school) => {
+                      const info = school[lang];
+                      return (
+                        <button
+                          key={school.id}
+                          onClick={() => handleSelectSchool(school)}
+                          className="w-full text-left p-3.5 rounded-xl bg-slate-950/95 hover:bg-slate-800/95 border border-slate-800 hover:border-amber-500/60 transition-all cursor-pointer group"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-1.5 mb-1">
+                            <span className="font-bold text-xs sm:text-sm text-amber-300 group-hover:text-amber-200">
+                              {info.name}
+                            </span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 text-slate-300">
+                              {info.tag}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-300 leading-relaxed">
+                            {info.shortDesc}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 5: DEEP ANALYSIS OF SELECTED SCHOOL */}
+              {step === 5 && selectedSchool && (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span>
+                        {lang === 'si'
+                          ? 'පියවර 5: දාර්ශනික විශ්ලේෂණය'
+                          : 'Step 5: Deep Philosophical Analysis'}
+                      </span>
+                    </span>
+                    <span className="text-xs px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-200 font-semibold">
+                      {selectedSchool[lang].name}
+                    </span>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-xl bg-slate-950/90 border border-amber-500/35 text-xs sm:text-base text-slate-200 leading-relaxed">
+                    {selectedSchool[lang].deepAnalysis}
+                  </div>
+
+                  <button
+                    onClick={handleNextScenario}
+                    className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm sm:text-base shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                  >
+                    {currentIdx + 1 < SCENARIOS.length
+                      ? lang === 'si'
+                        ? 'ඊළඟ අවස්ථාවට යන්න →'
+                        : 'Continue to Next Scenario →'
+                      : lang === 'si'
+                      ? 'අවසන් දාර්ශනික සිතියම බලන්න →'
+                      : 'View Theological Spectrum Map →'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* -------------------------------------------------------------------
+            PHASE 3: CUSTOM DILEMMA BUILDER
+           ------------------------------------------------------------------- */}
+        {phase === 'custom' && (
+          <div className="bg-slate-900/85 backdrop-blur-xl border border-indigo-500/30 rounded-2xl p-5 sm:p-8 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+                <PenTool className="w-3.5 h-3.5" />
+                <span>
+                  {lang === 'si'
+                    ? 'ඔබේම ගැටලුවක් පරීක්ෂා කරන්න (Custom Dilemma Builder)'
+                    : 'Custom Dilemma Builder'}
+                </span>
+              </div>
+              <button
+                onClick={() => setPhase('intro')}
+                className="text-xs text-slate-400 hover:text-slate-200 underline cursor-pointer"
+              >
+                {lang === 'si' ? 'ආපසු යන්න' : 'Back'}
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  {lang === 'si'
+                    ? '1. ඔබේ ජීවිතයේ සිදුවීමක් හෝ සදාචාරාත්මක ගැටලුවක් ලියන්න:'
+                    : '1. Describe a real-life situation or moral dilemma:'}
+                </label>
+                <textarea
+                  rows={2}
+                  value={customSituation}
+                  onChange={(e) => setCustomSituation(e.target.value)}
+                  placeholder={
+                    lang === 'si'
+                      ? 'උදා: මගේ මිතුරෙකුට මුදල් ණයක් දීමට සිදුවීම...'
+                      : 'e.g., Deciding whether to forgive a debt owed by a struggling friend...'
+                  }
+                  className="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-indigo-400 focus:outline-none p-3 text-xs sm:text-sm text-slate-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  {lang === 'si'
+                    ? '2. එහිදී ඔබ ගත් (හෝ ගැනීමට යන) තීරණය කුමක්ද?'
+                    : '2. What choice did you (or will you) make?'}
+                </label>
+                <input
+                  type="text"
+                  value={customAction}
+                  onChange={(e) => setCustomAction(e.target.value)}
+                  placeholder={
+                    lang === 'si'
+                      ? 'උදා: මම ඔහුගේ ණය මුදල අත්හැර දැමුවෙමි.'
+                      : 'e.g., I chose to forgive the debt completely.'
+                  }
+                  className="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-indigo-400 focus:outline-none p-3 text-xs sm:text-sm text-slate-100"
+                />
+              </div>
+            </div>
+
+            {/* Scrollable 7-School Selector Pills */}
+            <div>
+              <p className="text-xs font-semibold text-amber-300 mb-2">
+                {lang === 'si'
+                  ? '3. මෙම තීරණය ඉස්ලාමීය මතවාද 7න් විග්‍රහ කරන ආකාරය බලන්න:'
+                  : '3. Inspect this choice across all 7 schools:'}
+              </p>
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {SEVEN_SCHOOLS.map((sc) => (
+                  <button
+                    key={sc.id}
+                    onClick={() => {
+                      setCustomActiveSchool(sc.id);
+                      setFreeWill((prev) =>
+                        Math.max(5, Math.min(100, prev + Math.round(sc.fwDelta / 2)))
+                      );
+                      setDivineWill((prev) =>
+                        Math.max(5, Math.min(100, prev + Math.round(sc.dwDelta / 2)))
+                      );
+                    }}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap border transition-all cursor-pointer ${
+                      customActiveSchool === sc.id
+                        ? 'bg-amber-500/20 border-amber-400 text-amber-200'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {sc[lang].name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Analysis Box */}
+            {(() => {
+              const activeObj = SEVEN_SCHOOLS.find((s) => s.id === customActiveSchool);
+              if (!activeObj) return null;
+              return (
+                <div className="p-4 sm:p-5 rounded-xl bg-slate-950/95 border border-amber-500/35 space-y-2.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h4 className="font-bold text-sm sm:text-base text-amber-200">
+                      {activeObj[lang].name}
+                    </h4>
+                    <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-700 text-slate-300">
+                      {activeObj[lang].tag}
+                    </span>
+                  </div>
+                  {(customSituation || customAction) && (
+                    <p className="text-xs text-indigo-300 bg-indigo-950/30 border border-indigo-500/25 rounded-lg p-2.5">
+                      {lang === 'si' ? 'ඔබේ අවස්ථාව: ' : 'Your Case: '}
+                      <span className="font-semibold">
+                        {customSituation || '...'} → {customAction || '...'}
+                      </span>
+                    </p>
+                  )}
+                  <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                    {activeObj[lang].deepAnalysis}
+                  </p>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* -------------------------------------------------------------------
+            PHASE 4: FINAL THEOLOGICAL SPECTRUM MAP & PROFILE REPORT
+           ------------------------------------------------------------------- */}
+        {phase === 'summary' && (
+          <div className="bg-slate-900/85 backdrop-blur-xl border border-amber-500/25 rounded-2xl p-5 sm:p-8 shadow-2xl space-y-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold mb-2.5">
+                <Award className="w-3.5 h-3.5" />
+                <span>
+                  {lang === 'si'
+                    ? 'ඔබේ දාර්ශනික සිතියම (Theological Spectrum Map)'
+                    : 'Your Theological Spectrum Map'}
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-3xl font-bold text-amber-50">
+                {lang === 'si' ? 'ගවේෂණයේ අවසන් වාර්තාව' : 'Final Philosophical Report'}
+              </h2>
+            </div>
+
+            {/* Visual Determinism <-> Free Will Spectrum Bar */}
+            <div className="p-4 sm:p-5 rounded-xl bg-slate-950/90 border border-slate-800 space-y-3">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="text-sky-300">
+                  {lang === 'si' ? '← පූර්ණ දේව නිර්ණය (Jabriyya)' : '← Determinism'}
+                </span>
+                <span className="text-amber-300">
+                  {lang === 'si' ? 'මැදි මාවත' : 'Middle Path'}
+                </span>
+                <span className="text-emerald-300">
+                  {lang === 'si' ? 'නිදහස් කැමැත්ත (Mu\'tazila) →' : 'Free Will →'}
+                </span>
+              </div>
+
+              <div className="relative w-full h-3.5 rounded-full bg-gradient-to-r from-sky-600 via-amber-500 to-emerald-500 p-0.5">
+                <div
+                  className="absolute -top-1.5 w-6 h-6 rounded-full bg-white border-4 border-slate-950 shadow-lg transition-all duration-700"
+                  style={{ left: `calc(${spectrumPosition}% - 12px)` }}
+                />
+              </div>
+
+              <p className="text-center text-xs text-slate-400">
+                {lang === 'si'
+                  ? `ඔබේ සමතුලිතතා ලක්ෂ්‍යය: ${spectrumPosition}% නිදහස් කැමැත්ත දෙසට | අවසන් පරස්පරතා අගය: ${philosophicalTension}%`
+                  : `Spectrum Position: ${spectrumPosition}% toward Free Will | Final Paradox Tension: ${philosophicalTension}%`}
+              </p>
+            </div>
+
+            {/* Top Aligned Theological School Card */}
+            {profileResult.topSchool && (
+              <div className="p-4 sm:p-5 rounded-xl bg-gradient-to-br from-amber-950/40 via-slate-950 to-slate-950 border border-amber-500/40 space-y-2">
+                <p className="text-xs uppercase tracking-wider text-amber-400 font-bold">
+                  {lang === 'si'
+                    ? 'ඔබ වැඩිපුරම භාවිත කළ දේවධර්මීය කාචය:'
+                    : 'Your Most Frequently Chosen Lens:'}
+                </p>
+                <h3 className="text-lg sm:text-2xl font-bold text-amber-100">
+                  {profileResult.topSchool[lang].name}
+                </h3>
+                <p className="text-xs text-amber-300/85">
+                  {profileResult.topSchool[lang].tag}
+                </p>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed pt-1">
+                  {profileResult.topSchool[lang].deepAnalysis}
+                </p>
+              </div>
+            )}
+
+            {/* Toggleable Decision Log */}
+            <div>
+              <button
+                onClick={() => setShowReview((prev) => !prev)}
+                className="w-full py-3 px-4 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs sm:text-sm font-semibold text-slate-300 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <History className="w-4 h-4 text-amber-400" />
+                <span>
+                  {showReview
+                    ? lang === 'si'
+                      ? 'තීරණ ලැයිස්තුව සඟවන්න'
+                      : 'Hide Decision Log'
+                    : lang === 'si'
+                    ? 'ඔබ ගත් තීරණ 5 නැවත පරීක්ෂා කරන්න'
+                    : 'Review Your 5 Decisions'}
+                </span>
+              </button>
+
+              {showReview && (
+                <div className="mt-3 space-y-2.5">
+                  {history.map((item, idx) => {
+                    const sc = SCENARIOS.find((s) => s.id === item.scenarioId)?.[lang];
+                    const ch = sc?.choices.find((c) => c.id === item.choiceId);
+                    const ln = SEVEN_SCHOOLS.find((l) => l.id === item.schoolId)?.[lang];
+                    return (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 text-xs space-y-1"
+                      >
+                        <div className="flex items-center justify-between font-bold text-amber-200">
+                          <span>
+                            {idx + 1}. {sc?.title}
+                          </span>
+                          <span className="text-amber-400">
+                            {lang === 'si' ? 'පරස්පරතාව' : 'Tension'}: {item.tensionSnapshot}%
+                          </span>
+                        </div>
+                        <p className="text-slate-300 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span>{ch?.label}</span>
+                        </p>
+                        <p className="text-slate-400">
+                          {lang === 'si' ? 'මතවාදය: ' : 'School: '}
+                          <span className="text-sky-300 font-medium">{ln?.name}</span>
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleStartGame}
+                className="flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm sm:text-base shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>{lang === 'si' ? 'නැවත මුල සිට ගවේෂණය කරන්න' : 'Play Again'}</span>
+              </button>
+
+              <button
+                onClick={() => setShowTriadModal(true)}
+                className="py-3.5 px-5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-amber-500/40 text-amber-200 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <Triangle className="w-4 h-4 text-amber-400" />
+                <span>
+                  {lang === 'si' ? 'තාර්කික ත්‍රිකෝණ පරීක්ෂාව' : 'Logical Triad Explorer'}
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* =====================================================================
+          INTERACTIVE MODAL: THE LOGICAL TRIAD EXPLORER (තාර්කික ත්‍රිකෝණ පරීක්ෂාව)
+         ===================================================================== */}
+      {showTriadModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3.5 sm:p-5">
+          <div className="bg-slate-900 border border-amber-500/35 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Triangle className="w-5 h-5 text-amber-400" />
+                <h3 className="text-base sm:text-lg font-bold text-amber-100">
+                  {lang === 'si'
+                    ? 'තාර්කික ත්‍රිකෝණ පරීක්ෂාව (The Logical Triad)'
+                    : 'The Logical Triad Explorer'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowTriadModal(false)}
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              {lang === 'si'
+                ? 'පහත ස්ලයිඩර (Sliders) 3 වෙනස් කර බලන්න: මෙම කරුණු 3ම 100% ක් ලෙස තබා ගන්නා විට ඇතිවන තාර්කික ගැටුම (Logical Collision) නිරීක්ෂණය කරන්න.'
+                : 'Adjust the 3 sliders below to see how holding all three propositions at 100% generates a direct logical collision.'}
+            </p>
+
+            {/* 3 Interactive Sliders */}
+            <div className="space-y-3.5 bg-slate-950/90 border border-slate-800 rounded-xl p-4">
+              <div>
+                <div className="flex justify-between text-xs font-semibold text-sky-300 mb-1">
+                  <span>
+                    {lang === 'si'
+                      ? '1. දෙවියන්ගේ නොවරදින පූර්ව දැනුම (Omniscience)'
+                      : '1. Infallible Divine Foreknowledge'}
+                  </span>
+                  <span className="font-mono">{triadOmniscience}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={triadOmniscience}
+                  onChange={(e) => setTriadOmniscience(Number(e.target.value))}
+                  className="w-full accent-sky-400 cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between text-xs font-semibold text-emerald-300 mb-1">
+                  <span>
+                    {lang === 'si'
+                      ? '2. වෙනස් තීරණයක් ගැනීමේ නිදහස (Free Will)'
+                      : '2. Power to Choose Otherwise (Free Will)'}
+                  </span>
+                  <span className="font-mono">{triadFreeWill}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={triadFreeWill}
+                  onChange={(e) => setTriadFreeWill(Number(e.target.value))}
+                  className="w-full accent-emerald-400 cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between text-xs font-semibold text-purple-300 mb-1">
+                  <span>
+                    {lang === 'si'
+                      ? '3. දඬුවම් / පින් ලැබීමේ යුක්තිය (Accountability)'
+                      : '3. Just Moral Accountability'}
+                  </span>
+                  <span className="font-mono">{triadAccountability}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={triadAccountability}
+                  onChange={(e) => setTriadAccountability(Number(e.target.value))}
+                  className="w-full accent-purple-400 cursor-pointer"
+                />
+              </div>
+            </div>
+
+            {/* Collision Result */}
+            <div
+              className={`p-4 rounded-xl border ${
+                triadCollisionScore >= 80
+                  ? 'bg-rose-950/40 border-rose-500/50 text-rose-100'
+                  : 'bg-slate-950 border-slate-800 text-slate-200'
+              }`}
+            >
+              <div className="flex items-center justify-between text-xs font-bold mb-1.5">
+                <span className="flex items-center gap-1.5 text-amber-300">
+                  <Sliders className="w-4 h-4" />
+                  <span>
+                    {lang === 'si' ? 'තාර්කික ගැටුම් මට්ටම:' : 'Logical Collision Index:'}
+                  </span>
+                </span>
+                <span className="font-mono text-sm text-amber-300">
+                  {triadCollisionScore}%
+                </span>
+              </div>
+              <p className="text-xs leading-relaxed">
+                {triadCollisionScore >= 80
+                  ? lang === 'si'
+                    ? '⚠️ තාර්කික පරස්පරතාව උපරිමයි! දෙවියන් ඔබ කරන දේ 100% ක් නොවරදින ලෙස කලින් දන්නේ නම්, ඔබට එය වෙනස් කළ නොහැක; වෙනස් කළ නොහැකි දෙයකට දඬුවම් කිරීම යුක්තිය සමඟ ගැටේ.'
+                    : '⚠️ Maximum Logical Tension! If God infallibly foreknows X, you cannot do otherwise than X—colliding with libertarian freedom and moral blame.'
+                  : lang === 'si'
+                  ? '✓ එක් සාධකයක් අඩු කළ විට තාර්කික පරස්පරතාව අඩු වේ — මු\'තසිලා සහ ජබ්‍රියා ගුරුකුල කළේ මෙලෙස එක් අන්තයක් අඩු කිරීමයි.'
+                  : '✓ Reducing one corner eases the logical contradiction—which is precisely how Mu\'tazila and Jabriyya resolved the dilemma.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FOOTER */}
+      <footer className="relative z-10 border-t border-slate-900 py-3 px-4 text-center text-[11px] text-slate-500">
+        {lang === 'si'
+          ? 'සම්භාව්‍ය ඉස්ලාමීය දේවධර්මය (Kalam) සහ මතවාද 7 ඇසුරින් සකස් කරන ලද අධ්‍යාපනික අත්දැකීමකි.'
+          : 'An educational philosophical simulation across all 7 classical Islamic schools.'}
+      </footer>
+    </div>
+  );
+}
+```
